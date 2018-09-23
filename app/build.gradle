@@ -1,0 +1,90 @@
+apply plugin: 'com.android.application'
+// apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.fernandocejas.frodo'
+apply plugin: 'io.fabric'
+
+def isCi = "true".equals(System.getenv("CI"))
+def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '25.0.0'
+
+    defaultConfig {
+        applicationId "org.piwigo"
+        minSdkVersion 23
+        targetSdkVersion 23
+        versionCode 1
+        versionName "2.0"
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+        abortOnError false
+    }
+    dexOptions {
+        preDexLibraries = preDexEnabled && !isCi
+    }
+    dataBinding {
+        enabled = true
+    }
+    useLibrary 'org.apache.http.legacy'
+}
+
+ext {
+    supportVersion = '23.1.1'
+    okhttpVersion = '2.6.0'
+    assertjVersion = '1.1.1'
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile "com.android.support:appcompat-v7:${supportVersion}"
+    compile "com.android.support:support-annotations:${supportVersion}"
+    compile "com.android.support:design:${supportVersion}"
+    compile "com.android.support:cardview-v7:${supportVersion}"
+    compile 'com.google.dagger:dagger:2.0.2'
+    provided 'com.google.dagger:dagger-compiler:2.0.2'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compile "com.squareup.okhttp:okhttp:${okhttpVersion}"
+    compile "com.squareup.okhttp:okhttp-urlconnection:${okhttpVersion}"
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'io.reactivex:rxjava:1.0.13'
+    compile 'io.reactivex:rxandroid:0.25.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
+        transitive = true;
+    }
+    compile 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
+    compile 'org.apache.commons:commons-lang3:3.4'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.0'
+    testCompile("com.squareup.assertj:assertj-android:${assertjVersion}") {
+        exclude group: 'com.android.support'
+    }
+    testCompile("com.squareup.assertj:assertj-android-support-v4:${assertjVersion}") {
+        exclude group: 'com.android.support'
+    }
+    testCompile("com.squareup.assertj:assertj-android-appcompat-v7:${assertjVersion}") {
+        exclude group: 'com.android.support'
+    }
+    testProvided 'com.google.dagger:dagger-compiler:2.0.2'
+    testProvided 'org.glassfish:javax.annotation:10.0-b28'
+    testCompile "com.squareup.okhttp:mockwebserver:${okhttpVersion}"
+    testCompile 'com.squareup.retrofit:retrofit-mock:1.9.0'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+}

@@ -1,0 +1,19 @@
+<resources>
+
+    <style name="Theme.Piwigo.NavDrawer">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
+    <style name="Theme.Piwigo.Login">
+        <item name="colorPrimary">@color/piwigo_grey</item>
+        <item name="colorPrimaryDark">@color/piwigo_grey_secondary</item>
+        <item name="android:windowBackground">@color/piwigo_grey</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@android:transition/explode</item>
+        <item name="android:windowExitTransition">@android:transition/explode</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+    </style>
+
+</resources>

@@ -1,0 +1,6 @@
+<resources>
+
+    <!-- Login CardView width is limited on larger screens -->
+    <dimen name="login_width">400dp</dimen>
+
+</resources>
