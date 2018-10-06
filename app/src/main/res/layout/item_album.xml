@@ -5,7 +5,11 @@
 
         <variable
             name="viewModel"
-            type="org.piwigo.ui.viewmodel.AlbumItemViewModel" />
+            type="org.piwigo.ui.main.AlbumItemViewModel" />
+
+        <variable
+            name="clickHandler"
+            type="org.piwigo.ui.main.ClickHandler" />
     </data>
 
     <android.support.v7.widget.CardView
@@ -18,7 +22,12 @@
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true">
 
-
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@{viewModel.url}"
+            android:onClick="@{viewModel::onclickdo}"
+            app:heightRatio="@{0.66}" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,9 +35,7 @@
             android:layout_gravity="bottom"
             android:background="@color/alpha_grey"
             android:orientation="vertical"
-            android:padding="16dp"
-
-            >
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -36,8 +43,7 @@
                 android:layout_marginBottom="8dp"
                 android:text="@{viewModel.title}"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/piwigo_orange"
-                />
+                android:textColor="@color/piwigo_orange" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -46,15 +52,5 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/white" />
         </LinearLayout>
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            app:heightRatio="@{0.66}"
-            app:srcUrl="@{viewModel.url}"
-            android:onClick="@{() -> viewModel.onViewAlbumPhotos()}"
-            />
-
     </android.support.v7.widget.CardView>
 </layout>

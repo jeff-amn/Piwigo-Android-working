@@ -1,56 +1,51 @@
 /*
- * Copyright 2016 Phil Bayfield https://philio.me
- * Copyright 2016 Piwigo Team http://piwigo.org
+ * Piwigo for Android
+ * Copyright (C) 2016-2017 Piwigo Team http://piwigo.org
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package org.piwigo.io.repository;
 
-import android.util.Pair;
+import android.accounts.Account;
+import android.support.annotation.Nullable;
 
+import org.piwigo.io.RestService;
+import org.piwigo.io.RestServiceFactory;
 import org.piwigo.io.model.Category;
-import org.piwigo.io.model.ImageInfo;
 
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import rx.Observable;
-import rx.functions.Func2;
+import rx.Scheduler;
 
 public class CategoriesRepository extends BaseRepository {
 
-    @Inject public CategoriesRepository() {}
-
-    public Observable<List<Pair<Category, ImageInfo>>> getCategories(Integer categoryId) {
-        return restService
-                .getCategories(categoryId)
-                .flatMapIterable(categoryListResponse -> categoryListResponse.result.categories)
-                .filter(category -> categoryId == null || category.id != categoryId)
-                .flatMap(category -> {
-                    Observable<ImageInfo> imageInfo = restService.getImageInfo(category.representativePictureId)
-                            .map(getImageInfoResponse -> getImageInfoResponse.imageInfo);
-                    return Observable.zip(Observable.just(category), imageInfo, (Func2<Category, ImageInfo, Pair<Category, ImageInfo>>) Pair::new);
-                })
-                .toSortedList((firstPair, secondPair) -> {
-                    String firstRank = firstPair.first.globalRank;
-                    String secondRank = secondPair.first.globalRank;
-                    int firstRankIndex = firstRank.contains(".") ? firstRank.lastIndexOf(".") + 1 : 0;
-                    int secondRankIndex = secondRank.contains(".") ? secondRank.lastIndexOf(".") + 1 : 0;
-                    return Integer.parseInt(firstRank.substring(firstRankIndex)) - Integer.parseInt(secondRank.substring(secondRankIndex));
-                })
-                .compose(applySchedulers());
+    @Inject public CategoriesRepository(RestServiceFactory restServiceFactory, @Named("IoScheduler") Scheduler ioScheduler, @Named("UiScheduler") Scheduler uiScheduler) {
+        super(restServiceFactory, ioScheduler, uiScheduler);
     }
 
+    public Observable<List<Category>> getCategories(Account account, @Nullable Integer categoryId) {
+        RestService restService = restServiceFactory.createForAccount(account);
+
+        return restService.getCategories(categoryId, "large")
+                .flatMap(response -> Observable.from(response.result.categories))
+                .filter(category -> categoryId == null || category.id != categoryId)
+                .toSortedList((category1, category2) -> Double.compare(Double.parseDouble(category1.globalRank), Double.parseDouble(category2.globalRank)))
+                .compose(applySchedulers());
+    }
 }
